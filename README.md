@@ -35,13 +35,21 @@ var server = require('http').createServer()
 
 A message encapsulates an actor performing an action on a target with some content.
 
-Each socket needs an actor.  You must specifiy the key to the object / identifier and optionally the key on the object to use.
-
-This will grab the *user* object from the *socket* and use the *id* field of that object as the actor's id.
+Each socket needs an actor.  You must specifiy an method to grab the *actor*.  If you do
+not specify the actor the assigned socket id will be used.
 
 ```javascript
 
-messages.actor('user', 'id');
+messages.actor(function (socket, cb) {
+  if (socket.handshake && 
+      socket.handshake.session &&
+      socket.handshake.session.name) {
+     cb(null, socket.handshake.session.name);
+  }
+  else {
+     cb(new Error('Invalid Session'));
+  }
+});
 
 ```
 
