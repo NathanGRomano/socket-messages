@@ -1,6 +1,7 @@
 # WIP
 
 This library helps take events from client socket connections convert them into messages allows for them to be published to a message queue.
+It was built to work with socket.io but does not require it.
 
 # Installation and Environment Setup
 
@@ -139,3 +140,7 @@ messages.action('say', fuction (event, what, cb) {
 });
 
 ```
+
+It would be cool to listen for messages on the exchange / pubusb and automtaically forward them the *target*
+
+If we did that we should probably give the ability to specify a number of targets.
