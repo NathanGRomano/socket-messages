@@ -127,12 +127,22 @@ messages.action('say', fuction (event, what) {
 
 # Running Tests
 
-## Unit Tests
-
 Tests are run using grunt.  You must first globally install the grunt-cli with npm.
 
     > sudo npm install -g grunt-cli
 
-To run the tests, just run grunt
+To run all the tests
 
     > grunt
+
+## Unit Tests
+
+To run the tests, just run grunt
+
+    > grunt spec:unit
+
+## End to End tests
+
+To run the tests, just run grunt
+
+    > grunt spec:e2e
