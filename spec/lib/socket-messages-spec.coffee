@@ -26,7 +26,11 @@ describe 'SocketMessages', ->
         session:
           name: 'I'
       @socket.id = 'Me'
-    Given -> @instance = new @SocketMessages
+      spyOn(@socket,['emit']).andCallThrough()
+      spyOn(@socket,['on']).andCallThrough()
+    Given ->
+      @instance = new @SocketMessages
+      spyOn(@instance,['emit']).andCallThrough()
     Given ->
       @io = new EventEmitter
       spyOn(@io,['on']).andCallThrough()
@@ -107,4 +111,43 @@ describe 'SocketMessages', ->
 
         When -> @res = @instance.exchange(@exchange).exchange()
         Then -> expect(@res).toBe @exchange
+
+    describe '#actions', ->
+
+      When -> @res = @instance.actions()
+      Then -> expect(@res).toEqual []
+
+    describe '#action', ->
+
+      Given -> @name = 'say'
+      When -> @instance.action @name
+      Then -> expect(@instance.emit).toHaveBeenCalledWith 'action', @name
+      And -> expect(@instance.actions()).toEqual [@name]
+
+    describe '#onConnection', ->
+
+      Given -> @other = 'other'
+      Given -> @name = 'say'
+      When ->
+        @instance.action @other
+        @instance.onConnection @socket
+        @instance.action @name
+      Then -> expect(@socket.on).toHaveBeenCalledWith @name, jasmine.any(Function)
+      And -> expect(@socket.listeners(@other).length).toBe 1
+      And -> expect(@socket.listeners(@name).length).toBe 1
+
+      describe 'socket emits action', ->
+        Given -> @a = 'you'
+        Given -> @b = 'what'
+        Given -> spyOn(@instance,['onMessage']).andCallThrough()
+        When -> @socket.emit @name, @a, @b
+        Then -> expect(@instance.onMessage).toHaveBeenCalledWith @socket, [@a, @b]
+
+      describe 'when the socket is disconnected', ->
+        Given -> spyOn(@socket,['removeAllListeners']).andCallThrough()
+        When -> @socket.emit 'disconnect'
+        Then -> expect(@instance.listeners('action').length).toBe 0
+        And -> expect(@socket.listeners(@other).length).toBe 0
+        And -> expect(@socket.listeners(@name).length).toBe 0
+        And -> expect(@socket.removeAllListeners).toHaveBeenCalled()
 

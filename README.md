@@ -66,12 +66,12 @@ When we receive a message from the client can specify a method to extract *targe
 
 ```javascript
 
-message.target(function (listOfArguments, cb) {
+message.target(function (socket, params, cb) {
 
-  if (!listOfArguments || !listofArguments.length)
+  if (!params || !params.length)
     return cb(new Error('missing data'));
 
-  var targetId = listOfArguments.shift()
+  var targetId = params.shift()
 
   cb(null, targetId);
 
@@ -99,7 +99,7 @@ messages.exchange(exchange);
 
 ```
 
-Now we can setup logic to listen to messages.
+We can listen to actions by calling *action* and passing in the *name* of the action.
 
 ```javascript
 
@@ -107,21 +107,11 @@ messages.action('say');
 
 ```
 
-This will produce an object like this.
+When the *socket* receives an *event*, *messages* will produce an object like this.
 
 ```javascript
 
 { action:'say', actor:'the socket id', created: 'the date', content: 'what was said', target: 'what the actor is targeting their action to' }
-
-```
-
-We can pass a method to manipulate the message before being published.
-
-```javascript
-
-messages.action('say', fuction (event, what) {
-  event.content = what.toUpperCase();
-});
 
 ```
 
@@ -146,3 +136,16 @@ To run the tests, just run grunt
 To run the tests, just run grunt
 
     > grunt spec:e2e
+
+## TODO
+
+We can pass a method to manipulate the message before being published.
+
+```javascript
+
+messages.action('say', fuction (event, what, cb) {
+  event.content = what.toUpperCase();
+  cb();
+});
+
+```
