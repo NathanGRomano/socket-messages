@@ -1,3 +1,4 @@
+# WIP
 
 This library helps take events from client socket connections convert them into messages allows for them to be published to a message queue.
 
