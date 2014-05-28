@@ -93,3 +93,18 @@ describe 'SocketMessages', ->
           Given -> @instance.target @fn
           When -> @instance.target @socket, @params, @cb
           Then -> expect(@cb).toHaveBeenCalledWith null, 'You'
+
+    describe '#exchange', ->
+
+      Given -> @exchange = new EventEmitter
+
+      context 'with no arguments', ->
+
+        When -> @res = @instance.exchange()
+        Then -> expect(@res instanceof EventEmitter).toBe true
+
+      context 'with an object', ->
+
+        When -> @res = @instance.exchange(@exchange).exchange()
+        Then -> expect(@res).toBe @exchange
+
