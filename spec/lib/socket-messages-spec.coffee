@@ -20,6 +20,12 @@ describe 'SocketMessages', ->
 
   context 'an instance', ->
 
+    Given ->
+      @socket = new EventEmitter
+      @socket.handshake =
+        session:
+          name: 'I'
+      @socket.id = 'Me'
     Given -> @instance = new @SocketMessages
     Given ->
       @io = new EventEmitter
@@ -48,18 +54,11 @@ describe 'SocketMessages', ->
 
       context 'with an object, and callback', ->
 
-        Given ->
-          @socket = new EventEmitter
-          @socket.handshake =
-            session:
-              name: 'I'
-          @socket.id = 'Some'
-
         context 'with the default method', ->
 
           Given -> @cb = jasmine.createSpy 'cb'
           When -> @instance.actor @socket, @cb
-          Then -> expect(@cb).toHaveBeenCalledWith null, 'Some'
+          Then -> expect(@cb).toHaveBeenCalledWith null, 'Me'
 
         context 'with a custom method', ->
 
@@ -67,3 +66,30 @@ describe 'SocketMessages', ->
           Given -> @instance.actor @fn
           When -> @instance.actor @socket, @cb
           Then -> expect(@cb).toHaveBeenCalledWith null, 'I'
+
+    describe '#target', ->
+
+      Given -> @fn = (socket, params, cb) ->
+        cb null, params.shift()
+
+      context 'with a function', ->
+
+        When -> @res = @instance.target(@fn).target()
+        Then -> expect(@res).toBe @fn
+
+      context 'with param list, and callback', ->
+
+        Given -> @params = ['You']
+
+        context 'with the default method', ->
+
+          Given -> @cb = jasmine.createSpy 'cb'
+          When -> @instance.target @socket, @params, @cb
+          Then -> expect(@cb).toHaveBeenCalledWith null, 'Me'
+
+        context 'with a custom method', ->
+
+          Given -> @cb = jasmine.createSpy 'cb'
+          Given -> @instance.target @fn
+          When -> @instance.target @socket, @params, @cb
+          Then -> expect(@cb).toHaveBeenCalledWith null, 'You'
