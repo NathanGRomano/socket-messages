@@ -139,7 +139,7 @@ describe 'SocketMessages', ->
       describe 'socket emits action', ->
         Given -> @a = 'you'
         Given -> @b = 'what'
-        Given -> spyOn(@instance,['onMessage']).andCallThrough()
+        Given -> spyOn(@instance,['onMessage'])
         When -> @socket.emit @name, @a, @b
         Then -> expect(@instance.onMessage).toHaveBeenCalledWith @socket, [@a, @b]
 
@@ -151,3 +151,26 @@ describe 'SocketMessages', ->
         And -> expect(@socket.listeners(@name).length).toBe 0
         And -> expect(@socket.removeAllListeners).toHaveBeenCalled()
 
+    describe '#onMessage', ->
+      Given -> @actor = 'I'
+      Given -> @action = 'say'
+      Given -> @target = 'You'
+      Given -> @content = 'what'
+      Given -> @params = [@action, @target, @content]
+      Given -> spyOn(@instance,['actor']).andCallThrough()
+      Given -> spyOn(@instance,['target']).andCallThrough()
+      Given -> spyOn(@instance,['exchange']).andCallThrough()
+      Given -> spyOn(@instance.exchange(),['emit']).andCallThrough()
+      Given -> @instance.actor (socket, cb) -> cb null, socket.handshake.session.name
+      Given -> @instance.target (socket, args, cb) -> cb null, args.shift()
+      When -> @instance.onMessage @socket, @params
+      Then -> expect(@instance.actor).toHaveBeenCalledWith @socket, jasmine.any(Function)
+      And -> expect(@instance.target).toHaveBeenCalledWith @socket, [@content], jasmine.any(Function)
+      And -> expect(@instance.exchange).toHaveBeenCalled()
+      And -> expect(@instance.exchange().emit).toHaveBeenCalled()
+      And -> expect(@instance.exchange().emit.mostRecentCall.args[0]).toBe 'message'
+      And -> expect(@instance.exchange().emit.mostRecentCall.args[1].created instanceof Date).toBe true
+      And -> expect(@instance.exchange().emit.mostRecentCall.args[1].actor).toBe @actor
+      And -> expect(@instance.exchange().emit.mostRecentCall.args[1].target).toBe @target
+      And -> expect(@instance.exchange().emit.mostRecentCall.args[1].action).toBe @action
+      And -> expect(@instance.exchange().emit.mostRecentCall.args[1].content).toEqual [@content]
