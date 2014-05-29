@@ -141,7 +141,7 @@ describe 'SocketMessages', ->
         Given -> @b = 'what'
         Given -> spyOn(@instance,['onMessage'])
         When -> @socket.emit @name, @a, @b
-        Then -> expect(@instance.onMessage).toHaveBeenCalledWith @socket, [@a, @b]
+        Then -> expect(@instance.onMessage).toHaveBeenCalledWith @socket, [@name, @a, @b]
 
       describe 'when the socket is disconnected', ->
         Given -> spyOn(@socket,['removeAllListeners']).andCallThrough()

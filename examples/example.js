@@ -10,26 +10,27 @@ io.listen(3000);
 
 var exchange = new (require('events')).EventEmitter();
 exchange.on('message', function (message) {
-  console.log('message', message);
+  console.log('message', JSON.stringify(message));
   process.exit();
 });
 
 /*
  * configure our instance
  */
+
 require('../.')
   .listen(io)
   .actor(function (socket, cb) {
     cb(null, socket.id);
   })
   .target(function (socket, args, cb) {
+     console.log('the args', args);
      var target = args.shift();
-     console.log('args', args);
-     console.log('target', target);
-    cb(null, args.shift()); 
+     console.log('the target', target);
+    cb(null, target); 
   })
   .exchange(exchange)
-  .action('test');
+  .action('say');
 
 setTimeout(function () {
 
@@ -41,7 +42,7 @@ setTimeout(function () {
   var socket = require('socket.io-client')('http://localhost:3000');
 
   socket.on('connect', function () {
-    socket.emit('test', 'hello, world!');
+    socket.emit('say', 'you', 'hello, world!');
   });
 
 },1000);

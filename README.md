@@ -1,5 +1,3 @@
-# WIP
-
 This library helps take events from client socket connections convert them into messages allows for them to be published to a message queue.
 It was built to work with socket.io but does not require it.
 
@@ -13,7 +11,7 @@ Install coffee-script
 
 Clone this repository
 
-    > git clone git@github.com:NathanGRomano/message-exchange.git
+    > git clone git@github.com:NathanGRomano/socket-messages.git
 
 cd into the directory and install the dependencies
 
@@ -22,16 +20,14 @@ cd into the directory and install the dependencies
 
 # Examples
 
-Here is how we can setup socket-messages and listen to socket.io
-
-First we get a server, socket.io instance, and a socket-messages object
+Here is how we can setup socket-messages and have it listen to socket.io.
 
 ```javascript
 
-var server = require('http').createServer()
-  , io = require('socket.io').listen(server) 
-  , messages = require('socket-messages').listen(io)
-  ;
+var io = require('socket.io')();
+io.listen(3000);
+
+var messages = require('socket-messages').listen(io);
 
 ```
 
@@ -54,16 +50,7 @@ messages.actor(function (socket, cb) {
 });
 
 ```
-
-Or if you the value is simply the identifier
-
-```javascript
-
-message.actor('user')
-
-```
-
-When we receive a message from the client can specify a method to extract *target*
+Messages have a *target* we can specify a method to extract the target from the *params* received.
 
 ```javascript
 
@@ -112,7 +99,13 @@ When the *socket* receives an *event*, *messages* will produce an object like th
 
 ```javascript
 
-{ action:'say', actor:'the socket id', created: 'the date', content: 'what was said', target: 'what the actor is targeting their action to' }
+{
+  "created":"2014-05-29T14:34:36.942Z",
+  "action":"say",
+  "actor":"vL3fesBeM5ixbqhNAAAA",
+  "target":"you",
+  "content":["hello, world!"]
+ }
 
 ```
 
@@ -140,7 +133,3 @@ messages.action('say', fuction (event, what, cb) {
 });
 
 ```
-
-It would be cool to listen for messages on the exchange / pubusb and automtaically forward them the *target*
-
-If we did that we should probably give the ability to specify a number of targets.
