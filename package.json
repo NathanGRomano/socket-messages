@@ -11,10 +11,13 @@
     "url": "git@github.com:nathangromano/socket-messages.git"
   },
   "keywords": [
-    "socket.io",
     "message",
     "publish",
-    "exchange"
+    "exchange",
+    "event driven",
+    "socket",
+    "emitter",
+    "socket.io"
   ],
   "author": "Nathan G. Romano <nathan.g.romano@gmail.com>",
   "license": "ISC",
