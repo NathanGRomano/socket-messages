@@ -174,3 +174,4 @@ describe 'SocketMessages', ->
       And -> expect(@instance.exchange().emit.mostRecentCall.args[1].target).toBe @target
       And -> expect(@instance.exchange().emit.mostRecentCall.args[1].action).toBe @action
       And -> expect(@instance.exchange().emit.mostRecentCall.args[1].content).toEqual [@content]
+      And -> expect(@instance.exchange().emit.mostRecentCall.args[2]).toEqual @socket
