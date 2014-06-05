@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/NathanGRomano/socket-messages.svg?branch=master)](https://travis-ci.org/NathanGRomano/socket-messages.git)
 [![NPM version](https://badge.fury.io/js/socket-messages.svg)](http://badge.fury.io/js/socket-messages)
 
-This library helps take events from client socket connections convert them into messages allows for them to be published to a message queue.
+This library helps take events from client socket connections convert them into messages and allows for them to be published to a message queue.
 It was built to work with socket.io but does not require it.
 
 # Installation and Environment Setup

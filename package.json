@@ -1,6 +1,6 @@
 {
   "name": "socket-messages",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "This library will encapsulate messages from a socket.io socket and publish them to an object that adheres to the EventEmitter interface.",
   "main": "index.js",
   "scripts": {
