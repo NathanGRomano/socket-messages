@@ -10,8 +10,9 @@ io.listen(3000);
 
 var exchange = new (require('events')).EventEmitter();
 exchange.on('message', function (message) {
+  this.calls = this.calls || 0;
   console.log('message', JSON.stringify(message));
-  process.exit();
+  if (++this.calls > 2) process.exit(0);
 });
 
 /*
@@ -30,7 +31,8 @@ require('../.')
     cb(null, target); 
   })
   .exchange(exchange)
-  .action('say');
+  .action('say')
+  .autoPropagate(true);
 
 setTimeout(function () {
 
@@ -43,6 +45,7 @@ setTimeout(function () {
 
   socket.on('connect', function () {
     socket.emit('say', 'you', 'hello, world!');
+    socket.emit('other action', 'ok');
   });
 
 },1000);
