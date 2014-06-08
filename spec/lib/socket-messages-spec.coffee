@@ -33,18 +33,24 @@ describe 'SocketMessages', ->
       spyOn(@instance,['emit']).andCallThrough()
     Given ->
       @io = new EventEmitter
+      @io.sockets = fns: []
+      @io.use = (fn) -> @sockets.fns.push fn
       spyOn(@io,['on']).andCallThrough()
       spyOn(@io,['removeListener']).andCallThrough()
+      spyOn(@io,['use']).andCallThrough()
 
     describe '#attach', ->
 
       When -> @instance.attach @io
       Then -> expect(@io.on).toHaveBeenCalledWith 'connection', @instance.onConnection
+      And -> expect(@io.use).toHaveBeenCalledWith @instance.middleware
 
     describe '#dettach', ->
 
+      Given -> spyOn(@io.sockets.fns,['splice']).andCallThrough()
       When -> @instance.dettach @io
       Then -> expect(@io.removeListener).toHaveBeenCalledWith 'connection', @instance.onConnection
+      And -> expect(@io.sockets.fns,['splice']).toHaveBeenCaleldWith 0, 1
 
     describe '#actor', ->
 
@@ -175,3 +181,60 @@ describe 'SocketMessages', ->
       And -> expect(@instance.exchange().emit.mostRecentCall.args[1].action).toBe @action
       And -> expect(@instance.exchange().emit.mostRecentCall.args[1].content).toEqual [@content]
       And -> expect(@instance.exchange().emit.mostRecentCall.args[2]).toEqual @socket
+
+    describe '#autoPropagate', ->
+
+      Then -> expect(@instance.autoPropagate()).toBe false
+
+    describe '#autoPropagate (v:Boolean=false)', ->
+
+      When -> @instance.autoPropagate false
+      Then -> expect(@instance.autoPropagate()).toBe false
+
+    describe '#autoPropagate (v:Boolean=true)', ->
+
+      When -> @instance.autoPropagate true
+      Then -> expect(@instance.autoPropagate()).toBe true
+
+    describe '#middleware (socket:Object, next:Function)', ->
+
+      Given -> @socket = new EventEmitter
+      Given -> @next = jasmine.createSpy 'next'
+      When -> @instance.middleware @socket, @next
+      Then -> expect(@socket.onevent).toBe @instance.onSocketEvent
+      And -> expect(@next).toHaveBeenCalled()
+
+    describe.only '#onSocketEvent (packet:Object)', ->
+
+      context 'autoPropagation(v:Boolean=false)', ->
+
+        Given -> spyOn(EventEmitter.prototype.emit,['apply']).andCallThrough()
+        Given -> @socket = new EventEmitter
+        Given -> @cb = jasmine.createSpy 'cb'
+        Given -> @socket.addListener 'test', @cb
+        Given -> spyOn(@socket,['emit']).andCallThrough()
+        Given -> @fn = ->
+        Given -> @socket.ack = (a) => @fn
+        Given -> spyOn(@socket,['ack']).andCallThrough()
+        Given -> @socket.onSocketEvent = @instance.onSocketEvent
+        Given -> @packet = id: 1, data: ['test']
+        Given -> @instance.autoPropagate false
+        When -> @socket.onSocketEvent @packet
+        Then -> expect(@socket.ack).toHaveBeenCalledWith @packet.id
+        And -> expect(EventEmitter.prototype.emit.apply).toHaveBeenCalledWith @socket, ['test', @fn]
+        And -> expect(@cb).toHaveBeenCalledWith @fn
+
+      context 'autoPropagation(v:Boolean=true)', ->
+
+        Given -> spyOn(@instance,['onMessage'])
+        Given -> @socket = new EventEmitter
+        Given -> spyOn(@socket,['emit']).andCallThrough()
+        Given -> @fn = ->
+        Given -> @socket.ack = (a) => @fn
+        Given -> spyOn(@socket,['ack']).andCallThrough()
+        Given -> @socket.onSocketEvent = @instance.onSocketEvent
+        Given -> @packet = id: 1, data: ['test']
+        Given -> @instance.autoPropagate true
+        When -> @socket.onSocketEvent @packet
+        Then -> expect(@socket.ack).toHaveBeenCalledWith @packet.id
+        And -> expect(@instance.onMessage).toHaveBeenCalledWith @socket, ['test', @fn]

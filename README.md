@@ -112,6 +112,18 @@ When the *socket* receives an *event*, *messages* will produce an object like th
 
 ```
 
+You also have the ability to *auto-propagate* messages that way any event 
+received on socket will be encapsualted as message and published onto the
+exchange.  By default this is turned off.  If it is turned on *any* event
+even ones not declared with `messages.action('some action')` will be
+captured.
+
+```javascript
+
+messages.autoPropagate(true);
+
+```
+
 # Running Tests
 
 Tests are run using grunt.  You must first globally install the grunt-cli with npm.
